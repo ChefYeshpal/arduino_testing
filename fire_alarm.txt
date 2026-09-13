@@ -1,0 +1,21 @@
+int flamePin = 12;
+int buzzer = A2;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(flamePin, INPUT);
+  pinMode(buzzer, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  int flameDetected = digitalRead(flamePin);
+  Serial.println(flameDetected);
+
+  if (flameDetected == LOW) {  // most flame sensors output LOW when flame is detected
+    digitalWrite(buzzer, HIGH);
+  } else {
+    digitalWrite(buzzer, LOW);
+  }
+}
