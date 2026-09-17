@@ -1,0 +1,20 @@
+int FR1 = 5; // Front right motor input 1
+int FR2 = 6; // Front right motor input 2
+int FL1 = 9; // Front left motor input 1
+int FL2 = 10; // Front left motor input 2
+
+void setup() {
+  // Set motor control pins as outputs
+  pinMode(FR1, OUTPUT);
+  pinMode(FR2, OUTPUT);
+  pinMode(FL2, OUTPUT);
+  pinMode(FL2, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(FR1, HIGH);
+  digitalWrite(FR2, LOW);
+  digitalWrite(FL1, HIGH);
+  digitalWrite(FL2, LOW);
+}
+

@@ -13,8 +13,11 @@ void loop() {
   int flameDetected = digitalRead(flamePin);
   Serial.println(flameDetected);
 
-  if (flameDetected == LOW) {  // most flame sensors output LOW when flame is detected
+  if (flameDetected == LOW) {
     digitalWrite(buzzer, HIGH);
+    delay(200);
+    digitalWrite(buzzer, LOW);
+    delay(200);
   } else {
     digitalWrite(buzzer, LOW);
   }

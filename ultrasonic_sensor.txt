@@ -24,11 +24,11 @@ void loop () {
   Serial.println(" cm");
   delay(500);
 
-//  if (distance <= 20) {
-//    digitalWrite(buzzer, HIGH);
-//  } else {
-//    digitalWrite(buzzer, LOW);
-//  }
+  if (distance <= 30) {
+    digitalWrite(buzzer, HIGH);
+  } else {
+    digitalWrite(buzzer, LOW);
+  }
 
   delay(1000);
 }

@@ -1,0 +1,23 @@
+const int LDR_PIN = 8;     // LDR digital output connected to D8
+const int LED_PIN = 13;    // Built-in LED for visual indication
+
+void setup() {
+  pinMode(LDR_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int sensorState = digitalRead(LDR_PIN);
+
+  // Most 3-pin/4-pin LDR comparator modules (LM393) output LOW when light is detected:
+  if (sensorState == LOW) {
+    Serial.println("safeed panchi kare too too");
+    digitalWrite(LED_PIN, HIGH);
+  } else {
+    Serial.println("kaala kauwa kare kuu kuu");
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  delay(500); // Poll twice per second
+}

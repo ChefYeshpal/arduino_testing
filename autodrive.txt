@@ -1,0 +1,131 @@
+// ---------- Motor pins (all PWM-capable: D5, D6, D9, D10) ----------
+int FR1 = 5;  // Front right motor input 1
+int FR2 = 6;  // Front right motor input 2
+int FL1 = 9;  // Front left motor input 1
+int FL2 = 10; // Front left motor input 2
+
+// ---------- Ultrasonic sensor pins ----------
+int trigPin = 2;
+int echoPin = 3;
+
+// ---------- IR sensor pins (ledge detection) ----------
+int IR1 = 4;
+int IR2 = 7;
+
+// ---------- Tuning ----------
+int obstacleDistance = 10; // cm, react if something closer than this
+int reverseTime = 1000;     // ms, how long it backs up
+int turnTime = 700;        // ms, how long it turns
+
+int motorSpeed = 60; // 0-255, slow speed (try 100-150 range)
+
+// What the IR pin reads when a surface IS present (safe).
+int IR_SURFACE_STATE = LOW;
+
+void setup() {
+  pinMode(FR1, OUTPUT);
+  pinMode(FR2, OUTPUT);
+  pinMode(FL1, OUTPUT);
+  pinMode(FL2, OUTPUT);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  pinMode(IR1, INPUT);
+  pinMode(IR2, INPUT);
+
+  Serial.begin(9600);
+}
+
+// ---------- Movement helper functions (PWM speed control) ----------
+void moveForward() {
+  analogWrite(FR1, motorSpeed);
+  analogWrite(FR2, 0);
+  analogWrite(FL1, motorSpeed);
+  analogWrite(FL2, 0);
+}
+
+void moveBackward() {
+  analogWrite(FR1, 0);
+  analogWrite(FR2, motorSpeed);
+  analogWrite(FL1, 0);
+  analogWrite(FL2, motorSpeed);
+}
+
+void stopMotors() {
+  analogWrite(FR1, 0);
+  analogWrite(FR2, 0);
+  analogWrite(FL1, 0);
+  analogWrite(FL2, 0);
+}
+
+void turnRight() {
+  analogWrite(FR1, 0);
+  analogWrite(FR2, motorSpeed);
+  analogWrite(FL1, motorSpeed);
+  analogWrite(FL2, 0);
+}
+
+// ---------- Ultrasonic distance reading ----------
+long getDistanceCM() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH, 20000);
+  if (duration == 0) return 999;
+
+  long distance = duration * 0.0343 / 2;
+  return distance;
+}
+
+// ---------- Shared recovery maneuver: stop, reverse, turn ----------
+void avoidAndTurn() {
+  stopMotors();
+  delay(150);
+
+  moveBackward();
+  delay(reverseTime);
+  stopMotors();
+  delay(150);
+
+  turnRight();
+  delay(turnTime);
+  stopMotors();
+  delay(150);
+}
+
+// ---------- Main loop ----------
+void loop() {
+  // ----- Step 1: Check IR sensors (ledge detection) -----
+  int ir1State = digitalRead(IR1);
+  int ir2State = digitalRead(IR2);
+  bool surfacePresent = (ir1State == IR_SURFACE_STATE) && (ir2State == IR_SURFACE_STATE);
+
+  Serial.print("IR1: ");
+  Serial.print(ir1State);
+  Serial.print(" | IR2: ");
+  Serial.print(ir2State);
+
+  if (!surfacePresent) {
+    Serial.println(" | LEDGE DETECTED -> Stop, reverse, turn");
+    avoidAndTurn();
+    return; // IR takes priority, skip UR check this cycle
+  }
+
+  // ----- Step 2: Check UR sensor (obstacle detection) -----
+  long distance = getDistanceCM();
+  Serial.print(" | Surface OK | Distance: ");
+  Serial.print(distance);
+  Serial.print(" cm");
+
+  if (distance < obstacleDistance) {
+    Serial.println(" | OBSTACLE DETECTED -> Stop, reverse, turn");
+    avoidAndTurn();
+  } else {
+    Serial.println(" | Path clear -> Moving forward");
+    moveForward();
+  }
+}

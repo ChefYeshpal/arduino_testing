@@ -1,0 +1,108 @@
+// --- Motor Driver Pins (PWM capable) ---
+const int IN1 = 5;   // Left Motor +
+const int IN2 = 6;   // Left Motor -
+const int IN3 = 9;   // Right Motor +
+const int IN4 = 10;  // Right Motor -
+
+// --- Sensor & Peripheral Pin Assignments ---
+const int TRIG_PIN   = 2;   // Ultrasonic Trigger
+const int ECHO_PIN   = 3;   // Ultrasonic Echo
+const int IR_1       = 4;   // IR Sensor 1
+const int IR_2       = 7;   // IR Sensor 2
+const int LDR_PIN    = 8;   // LDR Digital Sensor
+const int DHT_PIN    = 11;  // DHT11 Data Pin
+const int FLAME_PIN  = 12;  // Flame Sensor
+const int LED_PIN    = 13;  // Onboard / External LED
+const int BUZZER_PIN = A2;  // Buzzer
+// I2C Display uses A4 (SDA) and A5 (SCL) via standard Wire interface
+
+// --- Motor Speed (PWM value 0 to 255) ---
+const int MOTOR_SPEED = 90; 
+
+void setup() {
+  // Initialize motor pins
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  // Initialize peripheral pins
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(IR_1, INPUT);
+  pinMode(IR_2, INPUT);
+  pinMode(LDR_PIN, INPUT);
+  pinMode(DHT_PIN, INPUT);
+  pinMode(FLAME_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  // Ensure robot starts in a stopped state
+  stopMotors();
+  delay(1000); 
+}
+
+void loop() {
+  // 1. Turn Right for 2 seconds
+  turnRight(MOTOR_SPEED);
+  delay(2000);
+  stopMotors();
+  delay(300);
+
+  // 2. Turn Left for 2 seconds
+  turnLeft(MOTOR_SPEED);
+  delay(2000);
+  stopMotors();
+  delay(300);
+
+  // 3. Move Forward for 2 seconds
+  moveForward(MOTOR_SPEED);
+  delay(2000);
+  stopMotors();
+  delay(300);
+
+  // 4. Move Backward for 2 seconds
+  moveBackward(MOTOR_SPEED);
+  delay(2000);
+  stopMotors();
+  delay(1000); // Pause before repeating routine
+}
+
+// --- Movement Functions ---
+
+void moveForward(int speed) {
+  analogWrite(IN1, speed);
+  analogWrite(IN2, 0);
+  analogWrite(IN3, speed);
+  analogWrite(IN4, 0);
+}
+
+void moveBackward(int speed) {
+  analogWrite(IN1, 0);
+  analogWrite(IN2, speed);
+  analogWrite(IN3, 0);
+  analogWrite(IN4, speed);
+}
+
+void turnRight(int speed) {
+  // Left side forward, right side backward
+  analogWrite(IN1, speed);
+  analogWrite(IN2, 0);
+  analogWrite(IN3, 0);
+  analogWrite(IN4, speed);
+}
+
+void turnLeft(int speed) {
+  // Left side backward, right side forward
+  analogWrite(IN1, 0);
+  analogWrite(IN2, speed);
+  analogWrite(IN3, speed);
+  analogWrite(IN4, 0);
+}
+
+void stopMotors() {
+  analogWrite(IN1, 0);
+  analogWrite(IN2, 0);
+  analogWrite(IN3, 0);
+  analogWrite(IN4, 0);
+}
